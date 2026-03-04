@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signalmind"
+version = "0.1.0"
+description = "Cyber incident risk scoring, anomaly detection, and LLM decision intelligence platform."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "fastapi>=0.110.0",
+  "uvicorn[standard]>=0.27.0",
+  "sqlalchemy>=2.0.25",
+  "pydantic>=2.6.0",
+  "pydantic-settings>=2.2.0",
+  "numpy>=1.26.0,<2.1.0",
+  "pandas>=2.1.0,<2.3.0",
+  "scikit-learn>=1.4.0,<1.6.0",
+  "joblib>=1.3.0",
+  "streamlit>=1.32.0",
+  "requests>=2.31.0",
+  "python-multipart>=0.0.9",
+  "torch>=2.2.0,<2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "httpx>=0.27.0",
+  "ruff>=0.4.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
