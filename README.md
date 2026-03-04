@@ -4,27 +4,18 @@ SignalMind is an AI-powered cybersecurity incident intelligence platform that co
 
 It is built to demonstrate production-grade AI engineering across backend systems, model training, evaluation, and analyst-facing product design.
 
-## Why This Project Matters
+## Overview
 
-Most portfolio AI projects stop at one of these layers:
+SignalMind is designed as a cyber incident intelligence system rather than a single-model demo.
 
-- a model notebook
-- a chatbot wrapper
-- a thin RAG demo
-- a dashboard with no real ML
+It supports an end-to-end workflow:
 
-SignalMind is intentionally broader and more realistic. It simulates the shape of an operational cyber decision-support system:
-
-- ingest telemetry or public cyber datasets
-- detect high-risk and abnormal events
-- retrieve similar incidents and remediation context
-- generate structured analyst decisions
-- expose the workflow through an API and an operator console
-
-This project complements `EvalForge`:
-
-- `EvalForge` shows LLM evaluation, PromptOps, telemetry, and async workflows
-- `SignalMind` shows ML + deep learning + retrieval + explainability + decision intelligence + productized deployment shape
+- ingest security events or public cyber CSV data
+- score incident risk with a classical ML model
+- detect temporal anomalies with a sequence model
+- retrieve similar incidents and remediation runbooks
+- generate structured analyst decisions with rationale, evidence, and actions
+- expose the workflow through a backend API and an analyst console
 
 ## What SignalMind Demonstrates
 
@@ -58,6 +49,28 @@ This project complements `EvalForge`:
 
 ## Architecture Overview
 
+```mermaid
+flowchart LR
+    A["Security Events / Public CSV Data"] --> B["Ingestion + Normalization"]
+    B --> C["SQLite / Incident Store"]
+    C --> D["Classical ML Risk Model"]
+    C --> E["LSTM Anomaly Model"]
+    C --> F["Similar Incident Retrieval"]
+    C --> G["Runbook Retrieval"]
+    D --> H["Risk Score + Explanations"]
+    E --> I["Anomaly Score"]
+    F --> J["Historical Evidence"]
+    G --> K["Remediation Context"]
+    H --> L["Decision Layer"]
+    I --> L
+    J --> L
+    K --> L
+    L --> M["Structured Analyst Brief"]
+    C --> N["FastAPI API"]
+    M --> N
+    N --> O["Streamlit Analyst Console"]
+```
+
 ### Backend
 
 - `FastAPI` API layer for ingestion, training, evaluation, incident listing, and decision generation
@@ -81,9 +94,9 @@ This project complements `EvalForge`:
 SignalMind uses a hybrid data strategy:
 
 1. Synthetic SOC-style incidents for reproducible local demos and fast end-to-end testing
-2. Public cyber CSV ingestion for realism and benchmark credibility
+2. Public cyber CSV ingestion for realism and benchmark-oriented experimentation
 
-Current public-data path is designed around normalized imports from datasets such as:
+Current public-data path is designed around normalized CSV imports inspired by datasets such as:
 
 - `UNSW-NB15`
 - `CIC-IDS2017`
@@ -136,6 +149,12 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 ```
 
+If editable install fails because your packaging tools are old, upgrade them first:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+```
+
 ### 3. Start the backend
 
 ```bash
@@ -153,7 +172,7 @@ streamlit run dashboard/app.py
 
 ## Demo Workflow
 
-### Option A: Synthetic end-to-end demo
+### Synthetic demo
 
 1. Click `Bootstrap Demo Data`
 2. Click `Train Models`
@@ -161,7 +180,9 @@ streamlit run dashboard/app.py
 4. Select an incident
 5. Click `Generate Analyst Brief`
 
-### Option B: Public-style CSV demo
+This flow is for the default local demo path using synthetic SOC-style incidents.
+
+### Public CSV demo
 
 1. Start the backend and dashboard
 2. In the dashboard, use the bundled sample:
@@ -171,6 +192,8 @@ streamlit run dashboard/app.py
 5. Click `Train Models`
 6. Click `Evaluate Models`
 7. Investigate an imported incident and generate the brief
+
+This flow is for showing that the system can ingest and score public-style cybersecurity data, not only synthetic demo records.
 
 ## API Surface
 
@@ -204,43 +227,7 @@ For a single incident, SignalMind can produce:
 - top risk drivers
 - similar historical incidents
 - recommended runbooks
-- structured analyst decision with:
-  - summary
-  - severity rationale
-  - evidence
-  - recommended actions
-  - investigation questions
-
-## Current Status
-
-Completed:
-
-- Backend API
-- Synthetic telemetry bootstrap
-- Public-style CSV ingestion
-- Classical ML + sequence anomaly modeling
-- Evaluation persistence
-- Incident-level explainability
-- Structured decision-intelligence layer
-- Analyst console UI
-
-In progress:
-
-- Real benchmark packaging
-- Docker and CI
-- richer tests
-- architecture visuals
-- final release polish
-
-## Why This Is Interview-Defensible
-
-This project is easy to discuss in interviews because it exposes real engineering tradeoffs:
-
-- why use a classical model and a sequence model together
-- how to separate scoring, retrieval, and generation
-- how to evaluate classification and anomaly layers differently
-- how to normalize public cyber datasets into a product schema
-- how to move from a local SQLite demo to a production service design
+- structured analyst decision with summary, severity rationale, evidence, recommended actions, and investigation questions
 
 ## Roadmap
 
@@ -248,7 +235,7 @@ This project is easy to discuss in interviews because it exposes real engineerin
 - Add experiment tracking and richer reporting
 - Add Docker and CI
 - Add architecture diagram
-- Add more realistic LLM provider integrations
+- Add real LLM provider integrations behind the existing provider abstraction
 - Add deeper tests for API and workflow coverage
 
 ## Tech Stack
@@ -265,5 +252,5 @@ This project is easy to discuss in interviews because it exposes real engineerin
 ## Notes
 
 - This repo is intentionally runnable locally without external LLM credentials
-- The current decision layer uses a provider abstraction with a strong fallback path
-- Synthetic metrics can look overly strong; public-data evaluation is the more realistic demo path
+- The current decision layer defaults to a mock provider plus a structured fallback path, so the project remains runnable without API keys
+- Synthetic metrics can look overly strong; imported public-style data is the more realistic demo path

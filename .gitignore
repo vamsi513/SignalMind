@@ -9,6 +9,7 @@ __pycache__/
 *.pyd
 *.db
 *.sqlite3
+*.egg-info/
 .DS_Store
 data/raw/*
 !data/raw/.gitkeep
@@ -16,4 +17,3 @@ data/processed/*
 !data/processed/.gitkeep
 data/artifacts/*
 !data/artifacts/.gitkeep
-

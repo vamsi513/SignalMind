@@ -21,7 +21,7 @@ The initial version intentionally demonstrates three separate AI patterns:
 2. Sequential deep learning
    - An `LSTM` autoencoder scores temporal behavior drift and anomaly magnitude.
 3. LLM decision layer
-   - Retrieved context plus model outputs are synthesized into analyst-ready briefs.
+   - A provider abstraction plus structured fallback synthesis turns model outputs and retrieved context into analyst-ready decisions.
 
 ## Data strategy
 
@@ -32,7 +32,7 @@ The project starts with realistic synthetic SOC telemetry because it gives:
 - reproducible model training
 - no licensing friction for portfolio publishing
 
-The next step is public dataset ingestion via adapters instead of rewriting the system:
+The next step is broader public dataset ingestion via adapters instead of rewriting the system:
 
 - `UNSW-NB15` for labeled intrusion/risk classification
 - `CIC-IDS2017` for attack-pattern benchmarking
