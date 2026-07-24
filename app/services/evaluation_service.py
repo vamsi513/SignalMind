@@ -10,7 +10,12 @@ from sklearn.model_selection import train_test_split
 from app.core.config import get_settings
 from app.db.models import Incident, ModelEvaluation
 from app.db.session import SessionLocal
-from app.ml.classical import predict_risk, train_risk_model
+from app.ml.classical import (
+    predict_risk,
+    score_isolation_forest,
+    train_isolation_forest,
+    train_risk_model,
+)
 from app.ml.sequence import score_sequences, train_sequence_model
 from app.schemas.evaluation import ModelEvaluationRead
 from app.services.dataset_context import describe_dataset_scope
@@ -42,6 +47,7 @@ def evaluate_models(dataset_name: str = "incident-db") -> ModelEvaluationRead:
     settings = get_settings()
     timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     classical_model_path = Path(settings.artifact_dir) / f"risk_model_eval_{timestamp}.joblib"
+    isolation_forest_path = Path(settings.artifact_dir) / f"isolation_forest_eval_{timestamp}.joblib"
     sequence_model_path = Path(settings.artifact_dir) / f"sequence_eval_{timestamp}.pt"
     artifact_path = Path(settings.artifact_dir) / f"evaluation_{timestamp}.json"
 
@@ -62,10 +68,12 @@ def evaluate_models(dataset_name: str = "incident-db") -> ModelEvaluationRead:
             anomaly_test_df = chrono_df.iloc[-1:].copy()
 
         train_risk_model(train_df, classical_model_path)
+        train_isolation_forest(train_df, isolation_forest_path)
         train_sequence_model(anomaly_train_df, sequence_model_path)
 
         risk_scores = np.array(predict_risk(classical_model_path, test_df))
         predicted_labels = (risk_scores >= 0.5).astype(int)
+        isolation_forest_scores = np.array(score_isolation_forest(isolation_forest_path, test_df))
         anomaly_scores = np.array(score_sequences(sequence_model_path, anomaly_test_df))
         y_true = test_df["label_high_risk"].to_numpy()
         anomaly_true = anomaly_test_df["label_high_risk"].to_numpy()
@@ -79,6 +87,7 @@ def evaluate_models(dataset_name: str = "incident-db") -> ModelEvaluationRead:
             "classical_f1": float(f1_score(y_true, predicted_labels, zero_division=0)),
             "anomaly_mean_normal": float(anomaly_scores[anomaly_true == 0].mean()) if np.any(anomaly_true == 0) else 0.0,
             "anomaly_mean_high_risk": float(anomaly_scores[anomaly_true == 1].mean()) if np.any(anomaly_true == 1) else 0.0,
+            "isolation_forest_auc": float(roc_auc_score(y_true, isolation_forest_scores)),
             "artifact_path": str(artifact_path),
         }
 

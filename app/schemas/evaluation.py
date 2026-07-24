@@ -14,6 +14,7 @@ class ModelEvaluationRead(BaseModel):
     classical_f1: float
     anomaly_mean_normal: float
     anomaly_mean_high_risk: float
+    isolation_forest_auc: float
     artifact_path: str
 
     model_config = {"from_attributes": True}

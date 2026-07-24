@@ -3,7 +3,7 @@ from typing import Any
 
 import joblib
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, IsolationForest
 from sklearn.inspection import permutation_importance
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -72,3 +72,40 @@ def explain_risk(model_path: Path, df: pd.DataFrame, top_k: int = 3) -> list[str
         )
         explanations.append(explanation)
     return explanations
+
+
+def train_isolation_forest(df: pd.DataFrame, output_path: Path) -> Path:
+    """Train an unsupervised IsolationForest anomaly detector.
+
+    Unlike train_risk_model (a supervised HistGradientBoostingClassifier),
+    this fits on features only -- no label_high_risk column is used during
+    training, matching how isolation forests are actually meant to be used.
+    """
+    X = df[FEATURE_COLUMNS]
+    pipeline = Pipeline(
+        steps=[
+            ("scaler", StandardScaler()),
+            ("model", IsolationForest(n_estimators=200, contamination="auto", random_state=42)),
+        ]
+    )
+    pipeline.fit(X)
+    joblib.dump(pipeline, output_path)
+    return output_path
+
+
+def score_isolation_forest(model_path: Path, df: pd.DataFrame) -> list[float]:
+    """Return anomaly scores in [0, 1], where higher means more anomalous.
+
+    IsolationForest.score_samples returns higher values for inliers and
+    lower (more negative) values for outliers, so the sign is flipped to
+    match this module's "higher = riskier" convention used elsewhere
+    (predict_risk, dashboard risk scores).
+    """
+    pipeline = joblib.load(model_path)
+    raw_scores = pipeline.score_samples(df[FEATURE_COLUMNS])
+    anomaly_scores = -raw_scores
+    lo, hi = anomaly_scores.min(), anomaly_scores.max()
+    if hi - lo < 1e-9:
+        return [0.0 for _ in anomaly_scores]
+    normalized = (anomaly_scores - lo) / (hi - lo)
+    return [float(score) for score in normalized]

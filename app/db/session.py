@@ -28,6 +28,14 @@ def _apply_sqlite_migrations() -> None:
                 text("ALTER TABLE incidents ADD COLUMN risk_explanation TEXT DEFAULT ''")
             )
 
+    if "model_evaluations" in inspector.get_table_names():
+        eval_columns = {column["name"] for column in inspector.get_columns("model_evaluations")}
+        with engine.begin() as connection:
+            if "isolation_forest_auc" not in eval_columns:
+                connection.execute(
+                    text("ALTER TABLE model_evaluations ADD COLUMN isolation_forest_auc FLOAT DEFAULT 0.0")
+                )
+
 
 def get_session() -> Iterator[Session]:
     with SessionLocal() as session:
