@@ -15,6 +15,7 @@ class ModelEvaluationRead(BaseModel):
     anomaly_mean_normal: float
     anomaly_mean_high_risk: float
     isolation_forest_auc: float
+    sequence_autoencoder_auc: float
     artifact_path: str
 
     model_config = {"from_attributes": True}

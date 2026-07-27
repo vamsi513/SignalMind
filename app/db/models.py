@@ -56,4 +56,5 @@ class ModelEvaluation(Base):
     anomaly_mean_normal: Mapped[float] = mapped_column(Float)
     anomaly_mean_high_risk: Mapped[float] = mapped_column(Float)
     isolation_forest_auc: Mapped[float] = mapped_column(Float, default=0.0)
+    sequence_autoencoder_auc: Mapped[float] = mapped_column(Float, default=0.0)
     artifact_path: Mapped[str] = mapped_column(String(255))

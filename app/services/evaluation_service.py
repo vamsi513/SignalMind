@@ -27,6 +27,7 @@ def _load_dataframe(session) -> pd.DataFrame:
         {
             "id": incident.id,
             "event_ts": incident.event_ts,
+            "user_id": incident.user_id,
             "failed_logins": incident.failed_logins,
             "geo_distance_km": incident.geo_distance_km,
             "off_hours_access": incident.off_hours_access,
@@ -88,6 +89,11 @@ def evaluate_models(dataset_name: str = "incident-db") -> ModelEvaluationRead:
             "anomaly_mean_normal": float(anomaly_scores[anomaly_true == 0].mean()) if np.any(anomaly_true == 0) else 0.0,
             "anomaly_mean_high_risk": float(anomaly_scores[anomaly_true == 1].mean()) if np.any(anomaly_true == 1) else 0.0,
             "isolation_forest_auc": float(roc_auc_score(y_true, isolation_forest_scores)),
+            "sequence_autoencoder_auc": (
+                float(roc_auc_score(anomaly_true, anomaly_scores))
+                if len(np.unique(anomaly_true)) > 1
+                else 0.0
+            ),
             "artifact_path": str(artifact_path),
         }
 

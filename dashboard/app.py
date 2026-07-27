@@ -213,6 +213,7 @@ def render_evaluation_panel(evaluations_payload: list[dict[str, Any]]) -> None:
         st.metric("Recall", f'{latest["classical_recall"]:.3f}')
         st.metric("F1", f'{latest["classical_f1"]:.3f}')
         st.metric("Isolation Forest AUC", f'{latest["isolation_forest_auc"]:.3f}')
+        st.metric("Sequence Autoencoder AUC", f'{latest["sequence_autoencoder_auc"]:.3f}')
         st.caption(f'Artifacts: {latest["artifact_path"]}')
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -229,6 +230,7 @@ def render_evaluation_panel(evaluations_payload: list[dict[str, Any]]) -> None:
                 "classical_recall",
                 "classical_f1",
                 "isolation_forest_auc",
+                "sequence_autoencoder_auc",
             ]
         ]
         st.dataframe(eval_df, use_container_width=True, height=220)

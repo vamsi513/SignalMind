@@ -35,6 +35,10 @@ def _apply_sqlite_migrations() -> None:
                 connection.execute(
                     text("ALTER TABLE model_evaluations ADD COLUMN isolation_forest_auc FLOAT DEFAULT 0.0")
                 )
+            if "sequence_autoencoder_auc" not in eval_columns:
+                connection.execute(
+                    text("ALTER TABLE model_evaluations ADD COLUMN sequence_autoencoder_auc FLOAT DEFAULT 0.0")
+                )
 
 
 def get_session() -> Iterator[Session]:

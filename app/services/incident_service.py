@@ -37,6 +37,7 @@ def _load_dataframe(session) -> pd.DataFrame:
         {
             "id": incident.id,
             "event_ts": incident.event_ts,
+            "user_id": incident.user_id,
             "failed_logins": incident.failed_logins,
             "geo_distance_km": incident.geo_distance_km,
             "off_hours_access": incident.off_hours_access,
